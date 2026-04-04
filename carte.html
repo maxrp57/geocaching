@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoTracker Pro</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --dark: #2c3e50;
+            --glass: rgba(255, 255, 255, 0.85);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+            z-index: 1;
+        }
+
+        /* Panneau d'interface moderne */
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            max-width: 300px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .btn-locate {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-locate:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        /* Style du marqueur utilisateur */
+        .user-location-icon {
+            background: #3498db;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui-overlay">
+        <h1>📍 GeoExplorer</h1>
+        <div class="status" id="status">Recherche de votre position...</div>
+        <button class="btn-locate" onclick="centerOnUser()">Me localiser</button>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialisation de la carte
+        const map = L.map('map', {
+            zoomControl: false // On cache pour le design, on le remettra à droite
+        }).setView([47.33, 7.20], 13);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // Fond de carte élégant (CartoDB Positron est plus "pro" et propre)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '©OpenStreetMap'
+        }).addTo(map);
+
+        // Vos Géocaches
+        const caches = [
+            { id: 1, coords: [47.33508, 7.24507], note: "Cache de la forêt" },
+            { id: 2, coords: [47.33858, 7.18237], note: "Point de vue" },
+            { id: 3, coords: [47.30670, 7.21997], note: "Près de l'eau" },
+            { id: 4, coords: [47.33115, 7.24157], note: "Cache urbaine" }
+        ];
+
+        // Icône personnalisée pour les caches
+        const cacheIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#2ecc71; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.3);'></div>",
+            iconSize: [15, 15],
+            iconAnchor: [7, 7]
+        });
+
+        caches.forEach(cache => {
+            L.marker(cache.coords, {icon: cacheIcon})
+                .addTo(map)
+                .bindPopup(`<b>Géocache #${cache.id}</b><br>${cache.note}`);
+        });
+
+        // --- SYSTÈME DE GÉOLOCALISATION ---
+        let userMarker, userCircle;
+
+        function onLocationFound(e) {
+            const radius = e.accuracy / 2;
+
+            if (userMarker) {
+                map.removeLayer(userMarker);
+                map.removeLayer(userCircle);
+            }
+
+            // Marqueur bleu pour l'utilisateur
+            userMarker = L.circleMarker(e.latlng, {
+                radius: 8,
+                fillColor: "#3498db",
+                color: "white",
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            }).addTo(map).bindPopup("Vous êtes ici");
+
+            // Cercle de précision
+            userCircle = L.circle(e.latlng, radius, {
+                color: "#3498db",
+                fillColor: "#3498db",
+                fillOpacity: 0.1,
+                weight: 1
+            }).addTo(map);
+
+            document.getElementById('status').innerHTML = "📍 Position trouvée";
+        }
+
+        function onLocationError(e) {
+            document.getElementById('status').innerHTML = "❌ Erreur : " + e.message;
+        }
+
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+        // Localisation automatique au démarrage
+        map.locate({setView: false, watch: true, enableHighAccuracy: true});
+
+        function centerOnUser() {
+            map.locate({setView: true, maxZoom: 16});
+        }
+    </script>
+</body>
+</html></html>
