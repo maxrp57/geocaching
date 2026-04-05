@@ -3,323 +3,308 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoCache Explorer - Jura</title>
+  <title>GeoCache Aventure - Jura</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
     :root {
-      --bg: #f3f7ef;
-      --panel: rgba(255, 255, 255, 0.96);
-      --line: rgba(31, 51, 28, 0.10);
-      --text: #17301f;
-      --muted: #5f715e;
-      --accent: #4caf50;
-      --accent-2: #f6a623;
-      --shadow: 0 16px 40px rgba(23, 48, 31, 0.12);
+      --primary: #2d6a4f;
+      --primary-dark: #1b4332;
+      --accent: #d4a373;
+      --bg-adventure: #f1f3f0;
+      --text: #081c15;
+      --paper: #fefae0;
     }
 
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       height: 100%;
-      font-family: Inter, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(76, 175, 80, 0.16), transparent 28%),
-        radial-gradient(circle at top right, rgba(246, 166, 35, 0.16), transparent 26%),
-        var(--bg);
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-adventure);
       color: var(--text);
     }
 
     .app {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 380px 1fr;
       height: 100vh;
-      overflow: hidden;
     }
 
+    /* BARRE LATERALE THEME AVENTURE */
     .sidebar {
-      background: var(--panel);
-      border-right: 1px solid var(--line);
-      padding: 18px;
+      background: var(--paper);
+      background-image: radial-gradient(#d4a37333 1px, transparent 1px);
+      background-size: 20px 20px;
+      border-right: 3px solid var(--primary-dark);
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: var(--shadow);
-      min-width: 0;
-      height: 100vh;
-      overflow: hidden;
+      gap: 20px;
+      z-index: 10;
+      box-shadow: 10px 0 20px rgba(0,0,0,0.1);
     }
 
-    .brand h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
-    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
-
-    .geo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(246, 166, 35, 0.12));
-      border: 1px solid rgba(76, 175, 80, 0.18);
-      font-size: 12px;
-      font-weight: 700;
+    .brand h1 { 
+      font-family: 'Alumni Sans', sans-serif;
+      font-size: 42px; 
+      margin: 0; 
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    .geo-logo { width: 20px; height: 20px; }
+    /* SYSTEME D'ÉTAPES */
+    .steps-nav {
+      display: flex;
+      justify-content: space-between;
+      background: var(--primary-dark);
+      padding: 10px;
+      border-radius: 8px;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .step { opacity: 0.4; transition: opacity 0.3s; }
+    .step.active { opacity: 1; color: var(--accent); }
 
-    .search input {
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
       width: 100%;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 14px;
-      padding: 12px 14px;
-      outline: none;
-      font: inherit;
+      padding: 15px;
+      border: 2px solid var(--primary-dark);
+      border-radius: 5px;
+      background: white;
+      font-weight: 600;
     }
 
+    /* CARTES DE CACHES */
     .list {
       flex: 1;
       overflow-y: auto;
-      padding-right: 6px;
-      display: grid;
-      gap: 12px;
-      scrollbar-width: thin;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding-right: 5px;
     }
-
-    .list::-webkit-scrollbar { width: 8px; }
-    .list::-webkit-scrollbar-thumb { background: rgba(76, 175, 80, 0.4); border-radius: 10px; }
 
     .card {
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(250, 252, 247, 0.98));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 14px;
+      background: white;
+      border-left: 5px solid var(--accent);
+      padding: 15px;
       cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease;
-      position: relative;
+      transition: all 0.2s ease;
+      box-shadow: 4px 4px 0px var(--primary-dark);
     }
 
-    .card:hover { transform: translateY(-2px); border-color: rgba(76, 175, 80, 0.35); }
-    .card.active { border-color: rgba(76, 175, 80, 0.55); background: rgba(233, 249, 236, 0.5); }
-
-    .card-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
-    .card h3 { margin: 0; font-size: 16px; font-weight: 700; }
-
-    .tag {
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(31, 143, 95, 0.10);
-      color: #1f7a48;
-      font-size: 11px;
-      border: 1px solid rgba(31, 143, 95, 0.16);
-      font-weight: 700;
+    .card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--primary-dark); }
+    .card.active { 
+      border-left: 5px solid var(--primary);
+      background: #e9f5db;
     }
 
-    .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-    .meta div { background: rgba(31, 143, 95, 0.05); border: 1px solid rgba(31, 143, 95, 0.08); border-radius: 14px; padding: 10px; font-size: 12px; color: var(--muted); }
-    .meta strong { display: block; color: var(--text); font-size: 13px; margin-top: 4px; }
+    .card h3 { margin: 0 0 5px 0; font-size: 18px; color: var(--primary-dark); }
+    .card .location { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+    
+    .card .details-hidden { 
+      max-height: 0; 
+      overflow: hidden; 
+      transition: max-height 0.3s ease; 
+      font-size: 13px;
+      margin-top: 0;
+    }
+    .card.active .details-hidden { max-height: 200px; margin-top: 10px; }
 
-    .desc { margin: 10px 0 0; color: #38513c; font-size: 13px; line-height: 1.55; }
-
-    .link-external {
+    .btn-go {
       display: inline-block;
-      margin-top: 12px;
-      font-size: 11px;
-      color: var(--accent);
+      margin-top: 10px;
+      padding: 8px 15px;
+      background: var(--primary-dark);
+      color: white;
       text-decoration: none;
-      font-weight: 700;
-      transition: opacity 0.2s;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 12px;
+      text-align: center;
     }
-    .link-external:hover { opacity: 0.7; }
 
-    .map-wrap { position: relative; }
-    #map { width: 100%; height: 100%; }
+    /* MAP */
+    .map-container { position: relative; }
+    #map { height: 100%; width: 100%; }
 
-    .top-overlay { position: absolute; top: 18px; left: 18px; z-index: 500; pointer-events: none; }
-    .overlay-box { pointer-events: auto; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; box-shadow: var(--shadow); max-width: 380px; }
+    .map-label {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--primary-dark);
+      color: white;
+      padding: 10px 20px;
+      font-weight: 800;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
 
-    .popup h4 { margin: 0 0 6px; font-size: 15px; }
-    .popup .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-    .popup .chip { padding: 4px 8px; border-radius: 999px; background: rgba(76, 175, 80, 0.08); font-size: 11px; color: #27593a; border: 1px solid rgba(76, 175, 80, 0.12); }
-    .popup .btn { display: block; text-align: center; margin-top: 12px; padding: 10px; border-radius: 12px; background: #4caf50; color: white; text-decoration: none; font-size: 12px; font-weight: 700; transition: background 0.2s; }
-    .popup .btn:hover { background: #3d8b40; }
+    /* POPUP STYLING */
+    .leaflet-popup-content-wrapper { background: var(--paper); border: 2px solid var(--primary-dark); border-radius: 0; }
+    .popup-title { font-weight: 800; color: var(--primary-dark); border-bottom: 1px solid #ccc; margin-bottom: 5px; }
 
     @media (max-width: 900px) {
-      .app { grid-template-columns: 1fr; grid-template-rows: 45vh 55vh; }
-      .sidebar { height: 45vh; border-right: none; border-bottom: 1px solid var(--line); }
+      .app { grid-template-columns: 1fr; grid-template-rows: 40vh 60vh; }
+      .sidebar { height: 40vh; border-right: none; border-bottom: 3px solid var(--primary-dark); }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <h1>GeoCache Explorer</h1>
-        <p>Découvre les caches du Jura.</p>
-        <div class="geo-badge">
-          <svg class="geo-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3.2L20 7.4V16.6L12 20.8L4 16.6V7.4L12 3.2Z" fill="#4CAF50" opacity="0.18"/>
-            <path d="M12 6.1C9.2 6.1 7 8.3 7 11.1C7 14.9 12 20.8 12 20.8C12 20.8 17 14.9 17 11.1C17 8.3 14.8 6.1 12 6.1Z" fill="#1F7A48"/>
-            <circle cx="12" cy="11.1" r="2.1" fill="#FFFFFF"/>
-          </svg>
-          Cache radar
-        </div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <h1>GeoCache Explorer</h1>
+      <div class="steps-nav">
+        <span id="step-1" class="step active">1. Chercher</span>
+        <span id="step-2" class="step">2. Choisir</span>
+        <span id="step-3" class="step">3. Partir</span>
       </div>
-      <div class="search">
-        <input id="search" type="text" placeholder="Rechercher (Bassecourt, Glovelier...)" />
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="Où commence l'aventure ?">
+    </div>
+
+    <div class="list" id="cache-list">
       </div>
-      <div class="list" id="cache-list"></div>
-    </aside>
+  </aside>
 
-    <main class="map-wrap">
-      <div class="top-overlay">
-        <div class="overlay-box">
-          <strong>Carte interactive</strong><br/>
-          <span style="font-size: 11px; color: var(--muted);">Sélectionne un point pour les détails GPS.</span>
-        </div>
-      </div>
-      <div id="map"></div>
-    </main>
-  </div>
+  <main class="map-container">
+    <div class="map-label">ZONE D'EXPLORATION : JURA</div>
+    <div id="map"></div>
+  </main>
+</div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const caches = [
-      {
-        id: 'gcaxf4t',
-        name: 'Bassecourt La cache',
-        city: 'Bassecourt',
-        coords: [47.335083, 7.245067],
-        difficulty: '2/5',
-        terrain: '2/5',
-        size: 'Petit',
-        type: 'Traditionnel',
-        url: 'https://www.geocaching.com/geocache/GCAXF4T',
-        description: 'Située dans les hauteurs du village de Bassecourt, au milieu d\'un chemin pittoresque.'
-      },
-      {
-        id: 'gcaxb26',
-        name: 'La cache de Glovelier',
-        city: 'Glovelier',
-        coords: [47.338583, 7.182367],
-        difficulty: '2/5',
-        terrain: '2/5',
-        size: 'Normal',
-        type: 'Traditionnel',
-        url: 'https://www.geocaching.com/geocache/GCAXB26',
-        description: 'Une cache discrète dans les hauteurs de Glovelier.'
-      },
-      {
-        id: 'gcawm8n',
-        name: 'La cache Sainte-Colombe',
-        city: 'Sainte-Colombe',
-        coords: [47.3067, 7.219967],
-        difficulty: '2/5',
-        terrain: '2/5',
-        size: 'Petit',
-        type: 'Traditionnel',
-        url: 'https://www.geocaching.com/geocache/GCAWM8N',
-        description: 'À proximité de la Sorne, la végétation luxuriante crée une ambiance de détente.'
-      }
-    ];
-
-    const map = L.map('map', { zoomControl: false });
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    function makeGeoIcon() {
-      return L.divIcon({
-        className: '',
-        html: `<div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(180deg, #5bcc63, #2f8f43); display: grid; place-items: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
-               </div>`,
-        iconSize: [34, 34], iconAnchor: [17, 34], popupAnchor: [0, -34]
-      });
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const caches = [
+    {
+      id: 'gcaxf4t',
+      name: 'Bassecourt La cache',
+      city: 'Bassecourt',
+      coords: [47.335083, 7.245067],
+      difficulty: '2/5',
+      terrain: '2/5',
+      url: 'https://www.geocaching.com/geocache/GCAXF4T',
+      desc: 'Une ascension légère offrant une vue imprenable sur le vallon.'
+    },
+    {
+      id: 'gcaxb26',
+      name: 'La cache de Glovelier',
+      city: 'Glovelier',
+      coords: [47.338583, 7.182367],
+      difficulty: '2/5',
+      terrain: '2/5',
+      url: 'https://www.geocaching.com/geocache/GCAXB26',
+      desc: 'Cachée sous le couvert des bois jurassiens.'
+    },
+    {
+      id: 'gcawm8n',
+      name: 'La cache Sainte-Colombe',
+      city: 'Sainte-Colombe',
+      coords: [47.3067, 7.219967],
+      difficulty: '2/5',
+      terrain: '2/5',
+      url: 'https://www.geocaching.com/geocache/GCAWM8N',
+      desc: 'Suivez le murmure de la Sorne pour débusquer ce trésor.'
     }
+  ];
 
-    const markerById = new Map();
-    const list = document.getElementById('cache-list');
-    const search = document.getElementById('search');
-    let activeId = null;
+  const map = L.map('map', { zoomControl: false }).setView([47.33, 7.2], 12);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    function renderList(filter = '') {
-      list.innerHTML = '';
-      const filtered = caches.filter(c => 
-        c.name.toLowerCase().includes(filter) || c.city.toLowerCase().includes(filter)
-      );
+  L.tileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=YOUR_API_KEY', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+  // Note: Si Thunderforest ne charge pas, on remet OpenStreetMap standard :
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-      filtered.forEach(cache => {
-        const card = document.createElement('article');
-        card.className = `card ${cache.id === activeId ? 'active' : ''}`;
-        card.dataset.id = cache.id;
-        card.innerHTML = `
-          <div class="card-top">
-            <div><h3>${cache.name}</h3><div class="geo-badge" style="padding:4px 8px; font-size:10px;">${cache.city}</div></div>
-            <span class="tag">${cache.type}</span>
-          </div>
-          <p class="desc">${cache.description}</p>
-          <div class="meta">
-            <div>Difficulté<strong>${cache.difficulty}</strong></div>
-            <div>Terrain<strong>${cache.terrain}</strong></div>
-          </div>
-          <a href="${cache.url}" target="_blank" class="link-external" onclick="event.stopPropagation()">Voir sur Geocaching.com ↗</a>
-        `;
-        card.onclick = () => {
-          activeId = cache.id;
-          highlight(cache.id);
-          const m = markerById.get(cache.id);
-          map.flyTo(cache.coords, 15);
-          m.openPopup();
-        };
-        list.appendChild(card);
-      });
-    }
+  const markerIcon = L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div style="background-color:var(--primary-dark); width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg); border:2px solid white; display:flex; align-items:center; justify-content:center;">
+            <div style="width:10px; height:10px; background:white; border-radius:50%;"></div>
+          </div>`,
+    iconSize: [30, 30], iconAnchor: [15, 30]
+  });
 
-    function highlight(id) {
-      document.querySelectorAll('.card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
-    }
+  const listEl = document.getElementById('cache-list');
+  const searchInput = document.getElementById('search-input');
+  const markers = {};
 
-    function initMarkers() {
-      const group = L.featureGroup();
-      caches.forEach(cache => {
-        const m = L.marker(cache.coords, { icon: makeGeoIcon() }).addTo(map);
-        
-        m.bindPopup(`
-          <div class="popup">
-            <h4>${cache.name}</h4>
-            <div class="row">
-              <span class="chip">${cache.size}</span>
-              <span class="chip">${cache.type}</span>
-            </div>
-            <a class="btn" href="${cache.url}" target="_blank">Ouvrir la fiche Geocache</a>
-          </div>
-        `);
+  function updateSteps(stepNumber) {
+    document.querySelectorAll('.step').forEach((s, idx) => {
+      s.classList.toggle('active', (idx + 1) <= stepNumber);
+    });
+  }
 
-        m.on('click', () => {
-          activeId = cache.id;
-          highlight(cache.id);
-          const el = document.querySelector(`[data-id="${cache.id}"]`);
-          if(el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        });
-
-        markerById.set(cache.id, m);
-        group.addLayer(m);
-      });
-      map.fitBounds(group.getBounds().pad(0.2));
-    }
-
-    search.addEventListener('input', (e) => renderList(e.target.value.toLowerCase()));
+  function render(filter = '') {
+    listEl.innerHTML = '';
+    const filtered = caches.filter(c => c.name.toLowerCase().includes(filter) || c.city.toLowerCase().includes(filter));
     
-    initMarkers();
-    renderList();
-  </script>
+    if(filter !== '') updateSteps(1);
+
+    filtered.forEach(cache => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card-' + cache.id;
+      card.innerHTML = `
+        <div class="location">${cache.city}</div>
+        <h3>${cache.name}</h3>
+        <div class="details-hidden">
+          <p>${cache.desc}</p>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--primary);">
+            <span>Diff: ${cache.difficulty}</span>
+            <span>Terr: ${cache.terrain}</span>
+          </div>
+          <a href="${cache.url}" target="_blank" class="btn-go">DÉBUTER L'AVENTURE ↗</a>
+        </div>
+      `;
+
+      card.onclick = () => selectCache(cache);
+      listEl.appendChild(card);
+
+      // Markers
+      const m = L.marker(cache.coords, { icon: markerIcon }).addTo(map);
+      m.bindPopup(`<div class="popup-title">${cache.name}</div><button onclick="window.open('${cache.url}')" class="btn-go">Voir la fiche</button>`);
+      m.on('click', () => selectCache(cache, false));
+      markers[cache.id] = m;
+    });
+  }
+
+  function selectCache(cache, scroll = true) {
+    // UI Update
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    const activeCard = document.getElementById('card-' + cache.id);
+    if(activeCard) activeCard.classList.add('active');
+    
+    if(scroll && activeCard) activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Map Update
+    map.flyTo(cache.coords, 15);
+    markers[cache.id].openPopup();
+
+    // Step Update
+    updateSteps(3);
+  }
+
+  searchInput.oninput = (e) => render(e.target.value.toLowerCase());
+
+  render();
+</script>
+
 </body>
 </html>
