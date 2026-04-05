@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoCache Explorer</title>
+  <title>GeoCache Explorer - Jura</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -54,19 +54,8 @@
       overflow: hidden;
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .brand p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
+    .brand h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
 
     .geo-badge {
       display: inline-flex;
@@ -87,7 +76,6 @@
       width: 100%;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.95);
-      color: var(--text);
       border-radius: 14px;
       padding: 12px 14px;
       outline: none;
@@ -113,6 +101,7 @@
       padding: 14px;
       cursor: pointer;
       transition: transform 0.18s ease, border-color 0.18s ease;
+      position: relative;
     }
 
     .card:hover { transform: translateY(-2px); border-color: rgba(76, 175, 80, 0.35); }
@@ -137,6 +126,17 @@
 
     .desc { margin: 10px 0 0; color: #38513c; font-size: 13px; line-height: 1.55; }
 
+    .link-external {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+      transition: opacity 0.2s;
+    }
+    .link-external:hover { opacity: 0.7; }
+
     .map-wrap { position: relative; }
     #map { width: 100%; height: 100%; }
 
@@ -146,7 +146,8 @@
     .popup h4 { margin: 0 0 6px; font-size: 15px; }
     .popup .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
     .popup .chip { padding: 4px 8px; border-radius: 999px; background: rgba(76, 175, 80, 0.08); font-size: 11px; color: #27593a; border: 1px solid rgba(76, 175, 80, 0.12); }
-    .popup .btn { display: block; text-align: center; margin-top: 10px; padding: 9px; border-radius: 12px; background: #4caf50; color: white; text-decoration: none; font-size: 12px; font-weight: 700; }
+    .popup .btn { display: block; text-align: center; margin-top: 12px; padding: 10px; border-radius: 12px; background: #4caf50; color: white; text-decoration: none; font-size: 12px; font-weight: 700; transition: background 0.2s; }
+    .popup .btn:hover { background: #3d8b40; }
 
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; grid-template-rows: 45vh 55vh; }
@@ -170,7 +171,7 @@
         </div>
       </div>
       <div class="search">
-        <input id="search" type="text" placeholder="Rechercher une cache (ville, nom...)" />
+        <input id="search" type="text" placeholder="Rechercher (Bassecourt, Glovelier...)" />
       </div>
       <div class="list" id="cache-list"></div>
     </aside>
@@ -178,8 +179,8 @@
     <main class="map-wrap">
       <div class="top-overlay">
         <div class="overlay-box">
-          <strong>Carte interactive</strong>
-          <span style="font-size: 11px; color: var(--muted);">Sélectionne une cache pour voir les détails.</span>
+          <strong>Carte interactive</strong><br/>
+          <span style="font-size: 11px; color: var(--muted);">Sélectionne un point pour les détails GPS.</span>
         </div>
       </div>
       <div id="map"></div>
@@ -198,6 +199,7 @@
         terrain: '2/5',
         size: 'Petit',
         type: 'Traditionnel',
+        url: 'https://www.geocaching.com/geocache/GCAXF4T',
         description: 'Située dans les hauteurs du village de Bassecourt, au milieu d\'un chemin pittoresque.'
       },
       {
@@ -209,6 +211,7 @@
         terrain: '2/5',
         size: 'Normal',
         type: 'Traditionnel',
+        url: 'https://www.geocaching.com/geocache/GCAXB26',
         description: 'Une cache discrète dans les hauteurs de Glovelier.'
       },
       {
@@ -220,6 +223,7 @@
         terrain: '2/5',
         size: 'Petit',
         type: 'Traditionnel',
+        url: 'https://www.geocaching.com/geocache/GCAWM8N',
         description: 'À proximité de la Sorne, la végétation luxuriante crée une ambiance de détente.'
       }
     ];
@@ -266,6 +270,7 @@
             <div>Difficulté<strong>${cache.difficulty}</strong></div>
             <div>Terrain<strong>${cache.terrain}</strong></div>
           </div>
+          <a href="${cache.url}" target="_blank" class="link-external" onclick="event.stopPropagation()">Voir sur Geocaching.com ↗</a>
         `;
         card.onclick = () => {
           activeId = cache.id;
@@ -286,8 +291,7 @@
       const group = L.featureGroup();
       caches.forEach(cache => {
         const m = L.marker(cache.coords, { icon: makeGeoIcon() }).addTo(map);
-        // Lien Google Maps corrigé ici
-        const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${cache.coords[0]},${cache.coords[1]}`;
+        
         m.bindPopup(`
           <div class="popup">
             <h4>${cache.name}</h4>
@@ -295,14 +299,17 @@
               <span class="chip">${cache.size}</span>
               <span class="chip">${cache.type}</span>
             </div>
-            <a class="btn" href="${googleUrl}" target="_blank">Y aller (GPS)</a>
+            <a class="btn" href="${cache.url}" target="_blank">Ouvrir la fiche Geocache</a>
           </div>
         `);
+
         m.on('click', () => {
           activeId = cache.id;
           highlight(cache.id);
-          document.querySelector(`[data-id="${cache.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          const el = document.querySelector(`[data-id="${cache.id}"]`);
+          if(el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         });
+
         markerById.set(cache.id, m);
         group.addLayer(m);
       });
