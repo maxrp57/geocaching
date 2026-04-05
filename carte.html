@@ -1,220 +1,79 @@
-#env
-.env
-.env.*
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon App Carte Interactive</title>
 
-# Logs
-/logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-node_modules
-dist
-dist-ssr
-*.local
+    <style>
+        /* CSS : Style de la page et de la carte */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
 
-.env
-.vite.
+        #map {
+            flex-grow: 1; /* La carte prend tout l'espace restant */
+            width: 100%;
+        }
 
-{
-  "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
-  "rsc": false,
-  "tsx": false,
-  "tailwind": {
-    "config": "tailwind.config.js",
-    "css": "src/index.css",
-    "baseColor": "neutral",
-    "cssVariables": true,
-    "prefix": ""
-  },
-  "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "iconLibrary": "lucide"
-}
+        .custom-popup {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
 
-import globals from "globals";
-import pluginJs from "@eslint/js";
-import pluginReact from "eslint-plugin-react";
-import pluginReactHooks from "eslint-plugin-react-hooks";
-import pluginUnusedImports from "eslint-plugin-unused-imports";
+    <header>
+        <h1>Ma Carte Interactive</h1>
+    </header>
 
-export default [
-  {
-    files: [
-      "src/components/**/*.{js,mjs,cjs,jsx}",
-      "src/pages/**/*.{js,mjs,cjs,jsx}",
-      "src/Layout.jsx",
-    ],
-    ignores: ["src/lib/**/*", "src/components/ui/**/*"],
-    ...pluginJs.configs.recommended,
-    ...pluginReact.configs.flat.recommended,
-    languageOptions: {
-      globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 2022,
-        sourceType: "module",
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    settings: {
-      react: {
-        version: "detect",
-      },
-    },
-    plugins: {
-      react: pluginReact,
-      "react-hooks": pluginReactHooks,
-      "unused-imports": pluginUnusedImports,
-    },
-    rules: {
-      "no-unused-vars": "off",
-      "react/jsx-uses-vars": "error",
-      "react/jsx-uses-react": "error",
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": [
-        "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
-      ],
-      "react/prop-types": "off",
-      "react/react-in-jsx-scope": "off",
-      "react/no-unknown-property": [
-        "error",
-        { ignore: ["cmdk-input-wrapper", "toast-close"] },
-      ],
-      "react-hooks/rules-of-hooks": "error",
-    },
-  },
-];
+    <div id="map"></div>
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // JAVASCRIPT : Initialisation de la carte
+        
+        // 1. On crée la carte centrée sur des coordonnées (ici Paris) avec un zoom de 13
+        // Coordonnées : [Latitude, Longitude]
+        const map = L.map('map').setView([48.8566, 2.3522], 13);
+
+        // 2. On ajoute une couche de "tuiles" (le dessin de la carte) 
+        // Nous utilisons OpenStreetMap qui est gratuit et libre
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // 3. Ajouter un marqueur à un endroit précis
+        const marker = L.marker([48.8566, 2.3522]).addTo(map);
+
+        // 4. Ajouter une bulle d'info (popup) au clic sur le marqueur
+        marker.bindPopup("<div class="custom-popup">Bonjour de Paris !</div><br>Ceci est une application HTML/JS.")
+              .openPopup();
+
+        // 5. Bonus : Ajouter un marqueur au clic de l'utilisateur sur la carte
+        map.on('click', function(e) {
+            const newMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+            newMarker.bindPopup("Nouveau point : <br>" + e.latlng.toString()).openPopup();
+        });
+    </script>
+
+</body>
 </html>
-
-{
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "jsx": "react-jsx",
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "lib": ["esnext", "dom"],
-    "target": "esnext",
-    "checkJs": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "types": []
-  },
-  "include": ["src/components/**/*.js", "src/pages/**/*.jsx", "src/Layout.jsx"],
-  "exclude": ["node_modules", "dist", "src/vite-plugins", "src/components/ui", "src/api", "src/lib"]
-}
-
-{
-  "name": "base44-app",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint . --quiet",
-    "lint:fix": "eslint . --fix",
-    "typecheck": "tsc -p ./jsconfig.json",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@base44/sdk": "^0.8.24",
-    "@base44/vite-plugin": "^1.0.6",
-    "@hello-pangea/dnd": "^17.0.0",
-    "@hookform/resolvers": "^4.1.2",
-    "@radix-ui/react-accordion": "^1.2.3",
-    ...
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.19.0",
-    ...
-    "vite": "^6.1.0"
-  }
-}
-
-export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-
-**Welcome to your Base44 project** 
-
-... (doc Base44)
-
-module.exports = {
-  darkMode: ["class"],
-  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
-  theme: {
-    extend: {
-      ...
-    }
-  },
-  plugins: [require("tailwindcss-animate")],
-}
-
-import base44 from "@base44/vite-plugin"
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  logLevel: 'error',
-  plugins: [
-    base44({
-      legacySDKImports: process.env.BASE44_LEGACY_SDK_IMPORTS === 'true',
-      hmrNotifier: true,
-      navigationNotifier: true,
-      analyticsTracker: true,
-      visualEditAgent: true
-    }),
-    react(),
-  ]
-});
