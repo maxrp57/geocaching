@@ -1,84 +1,32 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoCache Explorer | Mission Jura</title>
-  <link rel="stylesheet" href="https://cloudflare.com" />
-  <link href="https://googleapis.com" rel="stylesheet" />
-  <link rel="stylesheet" href="https://unpkg.com" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <h1 id="welcome">Bienvenue</h1>
+    </div>
 
-  <div class="app">
-    <aside class="sidebar">
-      <div class="topo-overlay"></div>
-      
-      <header class="brand">
-        <div class="status-indicator">SIGNAL GPS: FORT</div>
-        <h1>GEO<span>TRACKER</span></h1>
-        <p>UNITÉ D'EXPLORATION JURASSIENNE</p>
-      </header>
+    <script>
+        // Animation JS simple : changement de couleur et apparition lettre par lettre
+        const text = document.getElementById('welcome');
+        const str = text.textContent;
+        text.textContent = '';
+        let i = 0;
 
-      <div class="search-container">
-        <i class="fa-solid fa-crosshairs"></i>
-        <input id="search" type="text" placeholder="SCANNER LES COORDONNÉES..." />
-      </div>
+        function animateText() {
+            if (i < str.length) {
+                text.textContent += str.charAt(i);
+                i++;
+                setTimeout(animateText, 150);
+            }
+        }
 
-      <div class="list" id="cache-list">
-        <!-- Les cartes sont injectées ici -->
-      </div>
-
-      <footer class="sidebar-footer">
-        <div class="coord-display">47°19'N 7°20'E</div>
-      </footer>
-    </aside>
-
-    <main class="map-container">
-      <div class="map-overlay">
-        <div class="compass">
-          <i class="fa-solid fa-compass"></i>
-        </div>
-        <div class="stats-bar">
-          <div class="stat"><span>CACHES</span><strong id="count">03</strong></div>
-          <div class="stat"><span>ZONE</span><strong>JURA</strong></div>
-        </div>
-      </div>
-      <div id="map"></div>
-    </main>
-  </div>
-
-  <script src="https://unpkg.com"></script>
-  <script>
-    // Initialisation rapide pour test visuel
-    const map = L.map('map', { zoomControl: false }).setView([47.33, 7.21], 13);
-    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png').addTo(map);
-    
-    // Exemple de rendu de carte
-    const list = document.getElementById('cache-list');
-    const demo = [
-      { name: "L'OEIL DU JURA", type: "TRADITIONNELLE", diff: "3.5", dist: "1.2km" },
-      { name: "SECRET DE BASSECOURT", type: "MYSTÈRE", diff: "5.0", dist: "0.8km" }
-    ];
-    
-    demo.forEach(c => {
-      list.innerHTML += `
-        <div class="card">
-          <div class="card-header">
-            <span class="type-tag">${c.type}</span>
-            <span class="dist">${c.dist}</span>
-          </div>
-          <h3>${c.name}</h3>
-          <div class="card-footer">
-            <div class="difficulty">
-              <i class="fa-solid fa-skull"></i> NIV. ${c.diff}
-            </div>
-            <button class="btn-locate">LOCATE</button>
-          </div>
-        </div>
-      `;
-    });
-  </script>
+        window.onload = animateText;
+    </script>
 </body>
 </html>
