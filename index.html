@@ -3,76 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenue</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Bienvenue - Géocaching</title>
+    <style>
+        /* --- VARIABLES ET RESET --- */
+        :root {
+            --primary: #2ecc71; 
+            --bg: #0a1910; 
+            --text: #ecf0f1;
+            --alert: #e74c3c;
+            --accent: #f1c40f;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg);
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- FOND TOPOGRAPHIQUE --- */
+        .grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image:
+                linear-gradient(rgba(46, 204, 113, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(46, 204, 113, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: panGrid 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes panGrid {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-40px, -40px) rotate(2deg); }
+        }
+
+        /* --- SCÈNES --- */
+        .scene {
+            position: absolute;
+            z-index: 10;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        #scene1 { animation: sequence1 7s ease-in-out forwards; }
+        #scene2 { animation: sequence2 9s ease-in-out 7s forwards; }
+        #scene3 { animation: sequence3 6s ease-out 16s forwards; }
+
+        @keyframes sequence1 {
+            0% { opacity: 0; transform: scale(0.8); }
+            15%, 85% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.2); filter: blur(5px); }
+        }
+
+        @keyframes sequence2 {
+            0% { opacity: 0; transform: scale(0.8); }
+            10%, 90% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.2); filter: blur(5px); }
+        }
+
+        @keyframes sequence3 {
+            0% { opacity: 0; transform: translateY(50px); }
+            20%, 100% { opacity: 1; transform: translateY(0); pointer-events: all; }
+        }
+
+        /* --- VISUELS --- */
+        .compass-circle {
+            width: 150px; height: 150px;
+            border: 3px dashed var(--primary);
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        .compass-needle {
+            position: absolute; top: 15px; left: 50%;
+            width: 8px; height: 120px;
+            background: linear-gradient(to bottom, var(--alert) 50%, var(--text) 50%);
+            transform: translateX(-50%) rotate(375deg);
+            border-radius: 4px;
+            transition: transform 5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .radar {
+            width: 200px; height: 200px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            background: rgba(46, 204, 113, 0.05);
+        }
+
+        .radar::before {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 100px; height: 100px;
+            background: linear-gradient(45deg, rgba(46, 204, 113, 0.8) 0%, transparent 60%);
+            transform-origin: 0 0;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .cache-box {
+            margin-bottom: 20px;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px var(--accent));
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .btn-redirect {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .btn-redirect:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .highlight { color: var(--accent); font-weight: bold; }
+    </style>
 </head>
 <body>
-    <canvas id="background"></canvas>
-    <div class="container">
-        <h1 id="welcome"></h1>
+
+    <div class="grid"></div>
+
+    <div class="scene" id="scene1">
+        <div class="compass-circle"><div class="compass-needle" id="needle"></div></div>
+        <div id="boot-text">INITIALISATION DU SIGNAL...</div>
+    </div>
+
+    <div class="scene" id="scene2">
+        <div class="radar"></div>
+        <div style="margin-top: 30px;">
+            <span id="coords">RECHERCHE DU POINT ZÉRO...</span><br><br>
+            DISTANCE : <span class="highlight" id="distance">--</span> <span class="highlight">m</span>
+        </div>
+    </div>
+
+    <div class="scene" id="scene3">
+        <div class="cache-box">
+            <svg viewBox="0 0 100 100" width="120" height="120">
+                <rect x="15" y="40" width="70" height="50" rx="5" fill="#2c3e50" stroke="#2ecc71" stroke-width="3"/>
+                <rect x="10" y="30" width="80" height="15" rx="3" fill="#34495e" stroke="#2ecc71" stroke-width="3"/>
+                <rect x="38" y="55" width="10" height="10" fill="#e74c3c"/><rect x="52" y="55" width="10" height="10" fill="#f1c40f"/>
+                <rect x="38" y="69" width="10" height="10" fill="#3498db"/><rect x="52" y="69" width="10" height="10" fill="#2ecc71"/>
+            </svg>
+        </div>
+        <h1 style="font-size: 3rem; margin: 0;">CACHE TROUVÉE !</h1>
+        <p>Redirection vers la carte en cours...</p>
+        <a href="https://maxrp57.github.io/geocaching/carte.html" class="btn-redirect">Ouvrir la carte maintenant</a>
     </div>
 
     <script>
-        // Texte lettre par lettre
-        const text = document.getElementById('welcome');
-        const str = "Bienvenue";
-        let i = 0;
+        const targetURL = "https://maxrp57.github.io/geocaching/carte.html";
 
-        function animateText() {
-            if (i < str.length) {
-                text.textContent += str.charAt(i);
-                i++;
-                setTimeout(animateText, 250); // très lente
-            }
-        }
+        // Animation de la boussole
+        setTimeout(() => {
+            document.getElementById('needle').style.transform = "translateX(-50%) rotate(760deg)";
+        }, 500);
 
-        window.onload = () => {
-            animateText();
-            initParticles();
-        };
+        // Compte à rebours radar (Scène 2)
+        setTimeout(() => {
+            let dist = 120.0;
+            const distEl = document.getElementById('distance');
+            const timer = setInterval(() => {
+                dist -= 1.8;
+                if(dist <= 0) {
+                    dist = 0.0;
+                    clearInterval(timer);
+                }
+                distEl.innerText = dist.toFixed(1);
+            }, 100);
+        }, 7000);
 
-        // Canvas particules
-        const canvas = document.getElementById('background');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-
-        function initParticles() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            particles = [];
-            const particleCount = 150;
-            for(let j = 0; j < particleCount; j++){
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 2 + 1,
-                    dx: (Math.random() - 0.5) * 0.5,
-                    dy: Math.random() * 0.5 + 0.2,
-                    alpha: Math.random()
-                });
-            }
-
-            animateParticles();
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            for(let p of particles){
-                ctx.beginPath();
-                ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-                ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
-                ctx.fill();
-                p.x += p.dx;
-                p.y += p.dy;
-                if(p.y > canvas.height) { p.y = 0; p.x = Math.random()*canvas.width; }
-                if(p.x > canvas.width) { p.x = 0; }
-                if(p.x < 0) { p.x = canvas.width; }
-            }
-            requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', initParticles);
+        // REDIRECTION AUTOMATIQUE (Après 22 secondes au total)
+        setTimeout(() => {
+            window.location.href = targetURL;
+        }, 22000);
     </script>
 </body>
-</html>
+</html></html>
