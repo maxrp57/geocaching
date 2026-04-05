@@ -1,65 +1,77 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Géocaching - Accueil</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoCache Explorer | Jura</title>
+
+  <!-- Polices et Icones -->
+  <link rel="preconnect" href="https://googleapis.com" />
+  <link href="https://googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com" />
+  
+  <!-- Liaison avec le fichier CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <header class="header" role="banner">
-      <div class="brand">
-        <div class="logo">GC</div>
-        <div>
-          <h1>Géocaching</h1>
-          <p>Découvre des trésors autour de toi</p>
+
+  <div class="app">
+    <aside class="sidebar">
+      <header class="brand">
+        <div class="logo-wrapper">
+            <svg class="geo-logo" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+                <path d="M12 21C16.4183 21 20 17.4183 20 13C20 8.58172 16.4183 5 12 5C7.58172 5 4 8.58172 4 13C4 17.4183 7.58172 21 12 21Z" fill="#10b981" fill-opacity="0.1"/>
+                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" fill="#10b981"/>
+                <path d="M12 22C12 22 20 16 20 10C20 5.58172 16.4183 2 12 2C7.58172 2 4 5.58172 4 10C4 16 12 22 12 22Z" stroke="#10b981" stroke-width="2"/>
+            </svg>
+            <h1>GeoCache<span>Explorer</span></h1>
         </div>
+        <p>Explorez les trésors cachés du Jura suisse.</p>
+      </header>
+
+      <div class="search-box">
+        <input id="search" type="text" placeholder="Rechercher un trésor..." />
+        <span class="search-icon">🔍</span>
       </div>
 
-      <nav class="nav" role="navigation" aria-label="Navigation principale">
-        <button class="btn btn--glass" onclick="location.href='index.html'">Accueil</button>
-        <button class="btn btn--primary" onclick="location.href='carte.html'">📍 Carte</button>
-        <button class="btn btn--secondary" onclick="location.href='charmés.html'">✨ Charmés</button>
-      </nav>
-    </header>
-
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-card">
-        <h2 id="hero-title">Pars à l'aventure — Trouve, partage, collectionne</h2>
-        <p>Le géocaching est un jeu de chasse au trésor moderne. Utilise la carte pour localiser des caches près de chez toi.</p>
-
-        <div class="features" aria-hidden="false">
-          <article class="feature">
-            <h3>🎯 Trouver</h3>
-            <p>Repère des caches et découvre des lieux insolites.</p>
-          </article>
-          <article class="feature">
-            <h3>🏆 Collectionner</h3>
-            <p>Garde un journal de tes trouvailles et gagne des badges.</p>
-          </article>
-          <article class="feature">
-            <h3>👥 Partager</h3>
-            <p>Échange avec la communauté et laisse des indices utiles.</p>
-          </article>
-        </div>
+      <div class="list" id="cache-list">
+          <!-- Les cartes seront générées ici par JS -->
       </div>
+    </aside>
 
-      <aside class="actions" aria-label="Actions rapides">
-        <div class="card">
-          <p>Voir la carte interactive</p>
-          <button class="large-btn large-btn--map" onclick="location.href='carte.html'">Ouvrir la carte</button>
-        </div>
-        <div class="card">
-          <p>Consulter les caches recommandées</p>
-          <button class="large-btn large-btn--charmes" onclick="location.href='charmés.html'">Voir les charmés</button>
-        </div>
-      </aside>
-    </section>
-
-    <footer class="footer" role="contentinfo">
-      <p>&copy; 2026 Géocaching Community — Tous droits réservés</p>
-    </footer>
+    <main class="map-wrap">
+      <div class="map-ui">
+        <div class="status-pill">● Live Map</div>
+      </div>
+      <div id="map"></div>
+    </main>
   </div>
+
+  <script src="https://unpkg.com"></script>
+  <script>
+    // Ton script de données et d'initialisation de carte ici
+    const caches = [
+      { id: '1', name: 'Bassecourt La cache', city: 'Bassecourt', coords: [47.3350, 7.2450], difficulty: '2/5', terrain: '3/5', type: 'Traditionnel' },
+      { id: '2', name: 'Le Secret de Glovelier', city: 'Glovelier', coords: [47.3385, 7.1823], difficulty: '4/5', terrain: '2/5', type: 'Mystère' }
+    ];
+
+    const map = L.map('map', { zoomControl: false }).setView([47.33, 7.21], 13);
+    L.tileLayer('https://{s}://{z}/{x}/{y}{r}.png').addTo(map);
+
+    const listContainer = document.getElementById('cache-list');
+    caches.forEach(cache => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <div class="tag">${cache.type}</div>
+            <h3>${cache.name}</h3>
+            <div class="meta">
+                <span>📍 ${cache.city}</span>
+                <span>💪 Diff: ${cache.difficulty}</span>
+            </div>
+        `;
+        listContainer.appendChild(card);
+    });
+  </script>
 </body>
 </html>
