@@ -50,6 +50,8 @@
       gap: 14px;
       box-shadow: var(--shadow);
       min-width: 0;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .brand h1 {
@@ -95,15 +97,28 @@
     .search input::placeholder { color: #7b8c79; }
 
     .list {
+      flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
       padding-right: 6px;
       display: grid;
       gap: 12px;
-      flex: 1;
       min-height: 0;
-      height: 100%;
+      max-height: 100%;
       scrollbar-width: thin;
+    }
+
+    .list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .list::-webkit-scrollbar-thumb {
+      background: rgba(76, 175, 80, 0.4);
+      border-radius: 10px;
+    }
+
+    .list::-webkit-scrollbar-track {
+      background: transparent;
     }
 
     .list::-webkit-scrollbar {
@@ -353,7 +368,7 @@
       },
       {
         id: 'gcaxb26',
-        name: 'La cache de Gantlier',
+        name: 'La cache de Glovelier',
         city: 'Glovelier',
         code: 'GCAXB26',
         owner: 'Mxrp57',
@@ -520,6 +535,32 @@
       searchTerm = search.value.trim().toLowerCase();
       renderList();
     });
+
+    // Centrer sur la position de l'utilisateur si autorisé
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userCoords = [position.coords.latitude, position.coords.longitude];
+          map.setView(userCoords, 13);
+
+          L.circleMarker(userCoords, {
+            radius: 8,
+            fillColor: '#4caf50',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9
+          })
+          .addTo(map)
+          .bindPopup('📍 Tu es ici')
+          .openPopup();
+        },
+        () => {
+          // si refus ou erreur → vue par défaut Suisse
+          map.setView([46.8, 8.2], 8);
+        }
+      );
+    }
 
     renderMarkers();
     renderList();
