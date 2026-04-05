@@ -9,44 +9,51 @@
 <body>
     <canvas id="background"></canvas>
     <div class="container">
-        <h1 id="welcome">Bienvenue</h1>
+        <h1 id="welcome"></h1>
     </div>
 
     <script>
         // Texte lettre par lettre
         const text = document.getElementById('welcome');
-        const str = text.textContent;
-        text.textContent = '';
+        const str = "Bienvenue";
         let i = 0;
 
         function animateText() {
             if (i < str.length) {
                 text.textContent += str.charAt(i);
                 i++;
-                setTimeout(animateText, 250); // animation très longue
+                setTimeout(animateText, 250); // très lente
             }
         }
 
-        window.onload = animateText;
+        window.onload = () => {
+            animateText();
+            initParticles();
+        };
 
-        // Particules animées (JS canvas)
+        // Canvas particules
         const canvas = document.getElementById('background');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let particles = [];
 
-        const particles = [];
-        const particleCount = 120;
+        function initParticles() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
-        for(let j = 0; j < particleCount; j++){
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                r: Math.random() * 2 + 1,
-                dx: (Math.random() - 0.5) * 0.5,
-                dy: Math.random() * 0.5 + 0.1,
-                alpha: Math.random()
-            });
+            particles = [];
+            const particleCount = 150;
+            for(let j = 0; j < particleCount; j++){
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 2 + 1,
+                    dx: (Math.random() - 0.5) * 0.5,
+                    dy: Math.random() * 0.5 + 0.2,
+                    alpha: Math.random()
+                });
+            }
+
+            animateParticles();
         }
 
         function animateParticles() {
@@ -59,16 +66,13 @@
                 p.x += p.dx;
                 p.y += p.dy;
                 if(p.y > canvas.height) { p.y = 0; p.x = Math.random()*canvas.width; }
+                if(p.x > canvas.width) { p.x = 0; }
+                if(p.x < 0) { p.x = canvas.width; }
             }
             requestAnimationFrame(animateParticles);
         }
 
-        animateParticles();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        window.addEventListener('resize', initParticles);
     </script>
 </body>
 </html>
