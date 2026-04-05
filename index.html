@@ -1,21 +1,65 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page d'Index</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Géocaching - Accueil</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <h1>Bienvenue sur notre site de géocaching!</h1>
+  <div class="container">
+    <header class="header" role="banner">
+      <div class="brand">
+        <div class="logo">GC</div>
+        <div>
+          <h1>Géocaching</h1>
+          <p>Découvre des trésors autour de toi</p>
+        </div>
+      </div>
+
+      <nav class="nav" role="navigation" aria-label="Navigation principale">
+        <button class="btn btn--glass" onclick="location.href='index.html'">Accueil</button>
+        <button class="btn btn--primary" onclick="location.href='carte.html'">📍 Carte</button>
+        <button class="btn btn--secondary" onclick="location.href='charmés.html'">✨ Charmés</button>
+      </nav>
     </header>
-    <nav>
-        <button onclick="window.location.href='carte.html'">Aller à la carte</button>
-        <button onclick="window.location.href='charmés.html'">Voir les charmés</button>
-    </nav>
-    <footer>
-        <p>&copy; 2026 Max RP</p>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-card">
+        <h2 id="hero-title">Pars à l'aventure — Trouve, partage, collectionne</h2>
+        <p>Le géocaching est un jeu de chasse au trésor moderne. Utilise la carte pour localiser des caches près de chez toi.</p>
+
+        <div class="features" aria-hidden="false">
+          <article class="feature">
+            <h3>🎯 Trouver</h3>
+            <p>Repère des caches et découvre des lieux insolites.</p>
+          </article>
+          <article class="feature">
+            <h3>🏆 Collectionner</h3>
+            <p>Garde un journal de tes trouvailles et gagne des badges.</p>
+          </article>
+          <article class="feature">
+            <h3>👥 Partager</h3>
+            <p>Échange avec la communauté et laisse des indices utiles.</p>
+          </article>
+        </div>
+      </div>
+
+      <aside class="actions" aria-label="Actions rapides">
+        <div class="card">
+          <p>Voir la carte interactive</p>
+          <button class="large-btn large-btn--map" onclick="location.href='carte.html'">Ouvrir la carte</button>
+        </div>
+        <div class="card">
+          <p>Consulter les caches recommandées</p>
+          <button class="large-btn large-btn--charmes" onclick="location.href='charmés.html'">Voir les charmés</button>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footer" role="contentinfo">
+      <p>&copy; 2026 Géocaching Community — Tous droits réservés</p>
     </footer>
+  </div>
 </body>
 </html>
