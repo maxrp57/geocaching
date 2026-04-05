@@ -1,11 +1,10 @@
-/* Fond et corps */
+/* Corps et canvas */
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     font-family: 'Verdana', sans-serif;
     background: #0a0a0a;
-    color: #fff;
     height: 100vh;
     width: 100vw;
     display: flex;
@@ -14,7 +13,6 @@ body {
     position: relative;
 }
 
-/* Canvas pour les particules derrière le texte */
 canvas {
     position: absolute;
     top: 0;
@@ -30,7 +28,7 @@ canvas {
 }
 
 #welcome {
-    font-size: 8rem; /* énorme */
+    font-size: 10rem; /* énorme */
     color: #ffd700;
     text-shadow:
         0 0 10px #ffd700,
@@ -38,16 +36,25 @@ canvas {
         0 0 30px #ff4500,
         0 0 40px #ff1493,
         0 0 50px #8a2be2;
-    opacity: 0;
-    transform: scale(0.5) rotate(-5deg);
-    animation: appear 8s forwards; /* très longue animation */
+    animation: glow 3s infinite alternate;
 }
 
-/* Animation d’apparition du texte */
-@keyframes appear {
-    0% { opacity: 0; transform: scale(0.5) rotate(-5deg); }
-    20% { opacity: 0.5; transform: scale(1.1) rotate(2deg); }
-    50% { opacity: 1; transform: scale(1) rotate(0deg); }
-    80% { transform: scale(1.05) rotate(-2deg); }
-    100% { transform: scale(1) rotate(0deg); }
+/* Glow pulsant sur le texte */
+@keyframes glow {
+    from {
+        text-shadow:
+            0 0 10px #ffd700,
+            0 0 20px #ff8c00,
+            0 0 30px #ff4500,
+            0 0 40px #ff1493,
+            0 0 50px #8a2be2;
+    }
+    to {
+        text-shadow:
+            0 0 20px #ffff00,
+            0 0 40px #ff8c00,
+            0 0 60px #ff4500,
+            0 0 80px #ff1493,
+            0 0 100px #8a2be2;
+    }
 }
