@@ -1,79 +1,528 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon App Carte Interactive</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoCache Explorer</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <style>
-        /* CSS : Style de la page et de la carte */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+  <style>
+    :root {
+      --bg: #f3f7ef;
+      --panel: rgba(255, 255, 255, 0.96);
+      --line: rgba(31, 51, 28, 0.10);
+      --text: #17301f;
+      --muted: #5f715e;
+      --accent: #4caf50;
+      --accent-2: #f6a623;
+      --shadow: 0 16px 40px rgba(23, 48, 31, 0.12);
+    }
 
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(76, 175, 80, 0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(246, 166, 35, 0.16), transparent 26%),
+        var(--bg);
+      color: var(--text);
+    }
 
-        #map {
-            flex-grow: 1; /* La carte prend tout l'espace restant */
-            width: 100%;
-        }
+    .app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        .custom-popup {
-            font-weight: bold;
-            color: #e74c3c;
-        }
-    </style>
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .geo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(246, 166, 35, 0.12));
+      border: 1px solid rgba(76, 175, 80, 0.18);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .geo-logo { width: 20px; height: 20px; }
+
+    .search input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline: none;
+      font: inherit;
+    }
+
+    .search input::placeholder { color: #7b8c79; }
+
+    .list {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 6px;
+      display: grid;
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+      scrollbar-width: thin;
+    }
+
+    .list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .list::-webkit-scrollbar-thumb {
+      background: rgba(76, 175, 80, 0.4);
+      border-radius: 10px;
+    }
+
+    .list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(250, 252, 247, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(76, 175, 80, 0.35);
+    }
+
+    .card.active {
+      border-color: rgba(76, 175, 80, 0.55);
+      background: linear-gradient(180deg, rgba(233, 249, 236, 0.98), rgba(250, 252, 247, 0.98));
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(31, 143, 95, 0.10);
+      color: #1f7a48;
+      font-size: 11px;
+      border: 1px solid rgba(31, 143, 95, 0.16);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .meta div {
+      background: rgba(31, 143, 95, 0.05);
+      border: 1px solid rgba(31, 143, 95, 0.08);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .meta strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .desc {
+      margin: 10px 0 0;
+      color: #38513c;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .map-wrap {
+      position: relative;
+      min-width: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .top-overlay {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      z-index: 500;
+      pointer-events: none;
+    }
+
+    .overlay-box {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      max-width: 380px;
+    }
+
+    .overlay-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .overlay-box span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+      background: #ffffff;
+      color: var(--text);
+      border: 1px solid rgba(23, 48, 31, 0.10);
+      box-shadow: var(--shadow);
+    }
+
+    .popup h4 {
+      margin: 0 0 6px;
+      font-size: 15px;
+    }
+
+    .popup p {
+      margin: 0 0 8px;
+      color: #35503a;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .popup .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .popup .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(76, 175, 80, 0.08);
+      border: 1px solid rgba(76, 175, 80, 0.12);
+      font-size: 11px;
+      color: #27593a;
+    }
+
+    .popup .btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.14), rgba(246, 166, 35, 0.14));
+      color: #174822;
+      text-decoration: none;
+      border: 1px solid rgba(76, 175, 80, 0.22);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .sidebar { height: 42vh; border-right: none; border-bottom: 1px solid var(--line); }
+      .map-wrap { height: 58vh; }
+    }
+
+    @media (max-width: 640px) {
+      .sidebar { padding: 14px; height: 48vh; }
+      .map-wrap { height: 52vh; }
+      .meta { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>GeoCache Explorer</h1>
+        <p>Version simple et statique. Tu pourras me donner les vrais caches ensuite et je les mettrai proprement ici.</p>
+        <div class="geo-badge">
+          <svg class="geo-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 3.2L20 7.4V16.6L12 20.8L4 16.6V7.4L12 3.2Z" fill="#4CAF50" opacity="0.18"/>
+            <path d="M12 6.1C9.2 6.1 7 8.3 7 11.1C7 14.9 12 20.8 12 20.8C12 20.8 17 14.9 17 11.1C17 8.3 14.8 6.1 12 6.1Z" fill="#1F7A48"/>
+            <circle cx="12" cy="11.1" r="2.1" fill="#FFFFFF"/>
+          </svg>
+          Cache radar
+        </div>
+      </div>
 
-    <header>
-        <h1>Ma Carte Interactive</h1>
-    </header>
+      <div class="search">
+        <input id="search" type="text" placeholder="Rechercher un cache…" />
+      </div>
 
-    <div id="map"></div>
+      <div class="list" id="cache-list"></div>
+    </aside>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <main class="map-wrap">
+      <div class="top-overlay">
+        <div class="overlay-box">
+          <strong>Carte des caches</strong>
+          <span>Chaque point ouvre une fiche simple. Pas de compte, pas de sauvegarde, pas de fonction serveur.</span>
+        </div>
+      </div>
+      <div id="map"></div>
+    </main>
+  </div>
 
-    <script>
-        // JAVASCRIPT : Initialisation de la carte
-        
-        // 1. On crée la carte centrée sur des coordonnées (ici Paris) avec un zoom de 13
-        // Coordonnées : [Latitude, Longitude]
-        const map = L.map('map').setView([48.8566, 2.3522], 13);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const caches = [
+      {
+        id: 'gcaxf4t',
+        name: 'Bassecourt La cache',
+        city: 'Bassecourt',
+        code: 'GCAXF4T',
+        owner: 'Mxrp57',
+        coords: [47.335083, 7.245067],
+        difficulty: '2/5',
+        terrain: '2/5',
+        size: 'Petit',
+        type: 'Traditionnel',
+        description: 'Située dans les hauteurs du village de Bassecourt, au milieu d\'un chemin pittoresque bordé de maisons en pierre et jardins fleuris.',
+        hint: 'Aucun indice',
+        attributes: 'Poussettes OK, chiens OK, parking proche'
+      },
+      {
+        id: 'gcaxb26',
+        name: 'La cache de Gantlier',
+        city: 'Glovelier',
+        code: 'GCAXB26',
+        owner: 'Mxrp57',
+        coords: [47.338583, 7.182367],
+        difficulty: '2/5',
+        terrain: '2/5',
+        size: 'Normal',
+        type: 'Traditionnel',
+        description: 'Une cache dans les hauteurs de Glovelier.',
+        hint: 'Ce n\'est pas une pierre mais bien un oeuf',
+        attributes: 'Chiens OK, pas de nuit, pas de vélo'
+      },
+      {
+        id: 'gcawm8n',
+        name: 'La cache Sainte-Colombe',
+        city: 'Sainte-Colombe',
+        code: 'GCAWM8N',
+        owner: 'Mxrp57',
+        coords: [47.3067, 7.219967],
+        difficulty: '2/5',
+        terrain: '2/5',
+        size: 'Petit',
+        type: 'Traditionnel',
+        description: 'À proximité de la Sorne, la végétation luxuriante crée une ambiance de détente totale.',
+        hint: 'Un rocher avec un peu de mousse',
+        attributes: 'Accessible 24/7, parking proche'
+      }
+    ];
 
-        // 2. On ajoute une couche de "tuiles" (le dessin de la carte) 
-        // Nous utilisons OpenStreetMap qui est gratuit et libre
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    const map = L.map('map').setView([46.8, 8.2], 8);
 
-        // 3. Ajouter un marqueur à un endroit précis
-        const marker = L.marker([48.8566, 2.3522]).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-        // 4. Ajouter une bulle d'info (popup) au clic sur le marqueur
-        marker.bindPopup("<div class="custom-popup">Bonjour de Paris !</div><br>Ceci est une application HTML/JS.")
-              .openPopup();
+    function makeGeoIcon() {
+      return L.divIcon({
+        className: '',
+        html: `
+          <div style="
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(180deg, #5bcc63, #2f8f43);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+            border: 2px solid rgba(255,255,255,0.9);
+          ">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 3.2L20 7.4V16.6L12 20.8L4 16.6V7.4L12 3.2Z" fill="rgba(255,255,255,0.18)"/>
+              <path d="M12 6.1C9.2 6.1 7 8.3 7 11.1C7 14.9 12 20.8 12 20.8C12 20.8 17 14.9 17 11.1C17 8.3 14.8 6.1 12 6.1Z" fill="white"/>
+              <circle cx="12" cy="11.1" r="2.3" fill="#2f8f43"/>
+            </svg>
+          </div>
+        `,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19],
+        popupAnchor: [0, -18]
+      });
+    }
 
-        // 5. Bonus : Ajouter un marqueur au clic de l'utilisateur sur la carte
-        map.on('click', function(e) {
-            const newMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-            newMarker.bindPopup("Nouveau point : <br>" + e.latlng.toString()).openPopup();
+    const markerById = new Map();
+    const list = document.getElementById('cache-list');
+    const search = document.getElementById('search');
+    let activeId = null;
+    let searchTerm = '';
+
+    function popupContent(cache) {
+      const route = `https://www.google.com/maps/dir/?api=1&destination=${cache.coords[0]},${cache.coords[1]}`;
+      return `
+        <div class="popup">
+          <h4>${cache.name}</h4>
+          <p>${cache.description}</p>
+          <div class="row">
+            <span class="chip">Ville : ${cache.city}</span>
+            <span class="chip">Type : ${cache.type}</span>
+            <span class="chip">Difficulté : ${cache.difficulty}</span>
+            <span class="chip">Terrain : ${cache.terrain}</span>
+            <span class="chip">Taille : ${cache.size}</span>
+          </div>
+          <a class="btn" href="${route}" target="_blank" rel="noopener">Ouvrir l’itinéraire</a>
+        </div>
+      `;
+    }
+
+    function matchesSearch(cache) {
+      if (!searchTerm) return true;
+      return [cache.name, cache.city, cache.type, cache.size, cache.description, cache.difficulty, cache.terrain]
+        .join(' ')
+        .toLowerCase()
+        .includes(searchTerm);
+    }
+
+    function renderMarkers() {
+      caches.forEach(cache => {
+        if (markerById.has(cache.id)) return;
+        const marker = L.marker(cache.coords, { icon: makeGeoIcon() }).addTo(map);
+        marker.bindPopup(popupContent(cache), { maxWidth: 320 });
+        marker.on('click', () => {
+          activeId = cache.id;
+          highlightCards();
         });
-    </script>
+        markerById.set(cache.id, marker);
+      });
+    }
 
+    function renderList() {
+      list.innerHTML = '';
+      caches.filter(matchesSearch).forEach(cache => {
+        const card = document.createElement('article');
+        card.className = `card ${cache.id === activeId ? 'active' : ''}`;
+        card.dataset.id = cache.id;
+        card.innerHTML = `
+          <div class="card-top">
+            <div>
+              <h3>${cache.name}</h3>
+              <div class="geo-badge" style="margin-top:8px; display:inline-flex; padding:8px 10px;">
+                <svg class="geo-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M12 4.2L18.9 7.8V16.2L12 19.8L5.1 16.2V7.8L12 4.2Z" fill="#4CAF50" opacity="0.18"/>
+                  <path d="M12 7.4C10.2 7.4 8.7 8.9 8.7 10.7C8.7 12.5 10.2 14 12 14C13.8 14 15.3 12.5 15.3 10.7C15.3 8.9 13.8 7.4 12 7.4ZM12 9.2C12.8 9.2 13.4 9.9 13.4 10.7C13.4 11.5 12.8 12.2 12 12.2C11.2 12.2 10.6 11.5 10.6 10.7C10.6 9.9 11.2 9.2 12 9.2Z" fill="#1F7A48"/>
+                </svg>
+                ${cache.city}
+              </div>
+            </div>
+            <span class="tag">${cache.type}</span>
+          </div>
+          <div class="desc">${cache.description}</div>
+          <div class="meta">
+            <div>Difficulté<strong>${cache.difficulty}</strong></div>
+            <div>Terrain<strong>${cache.terrain}</strong></div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          activeId = cache.id;
+          highlightCards();
+          const marker = markerById.get(cache.id);
+          if (marker) {
+            map.setView(cache.coords, 13, { animate: true });
+            marker.openPopup();
+          }
+        });
+        list.appendChild(card);
+      });
+
+      if (!list.children.length) {
+        list.innerHTML = `
+          <div class="card" style="cursor: default;">
+            <h3>Aucun cache trouvé</h3>
+            <p class="desc">Essaie un autre mot-clé.</p>
+          </div>
+        `;
+      }
+    }
+
+    function highlightCards() {
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.toggle('active', card.dataset.id === activeId);
+      });
+    }
+
+    search.addEventListener('input', () => {
+      searchTerm = search.value.trim().toLowerCase();
+      renderList();
+    });
+
+    renderMarkers();
+    renderList();
+  </script>
 </body>
 </html>
