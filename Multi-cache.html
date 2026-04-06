@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Cache par Mxrp57</title>
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --accent: #27ae60;
+            --light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Fond thématique : Carte topographique / Nature */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1504150559439-052593442405?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            width: 90%;
+            max-width: 450px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            text-align: center;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .badge {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin: 15px 0 5px 0;
+            font-size: 1.8rem;
+        }
+
+        .creator {
+            color: #555;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        /* Couleurs issues de la page 2 du document */
+        .color-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .download-box {
+            background: #fdfdfd;
+            border: 2px dashed #ddd;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn:hover {
+            background: #219150;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .warning-text {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <span class="badge">Geocaching</span>
+        <h1>Cache à Bassecourt</h1>
+        <div class="creator">Créée par Mxrp57</div>
+
+        <p>Prêt à relever le défi au centre-ville ? [cite: 1]</p>
+
+        <div class="steps-container">
+            <div class="color-dot" style="background: yellow;" title="Étape 3"></div>
+            <div class="color-dot" style="background: lime;" title="Étape 1"></div>
+            <div class="color-dot" style="background: red;" title="Étape 4"></div>
+            <div class="color-dot" style="background: blue;" title="Étape 2"></div>
+            <div class="color-dot" style="background: magenta;" title="Final"></div>
+        </div>
+
+        <div class="download-box">
+            <a href="fiche_cache_bassecourt.pdf" download class="btn">
+                💾 Télécharger la Fiche de Route
+            </a>
+            <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">Format PDF - Indispensable pour l'aventure</p>
+        </div>
+
+        <div class="warning-text">
+            <strong>Note de Mxrp57 :</strong> Cette feuille va bien vous servir, je vous déconseille de ne pas y prêter attention ! 
+        </div>
+    </div>
+
+</body>
+</html></html></html>
