@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victoire Finale - Mxrp57</title>
+    <style>
+        :root {
+            --primary: #1a2a6c;
+            --accent: #f39c12;
+            --danger: #e74c3c;
+            --success: #27ae60;
+            --bg-dark: rgba(20, 20, 20, 0.9);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1448375240586-882707db888b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            background: var(--bg-dark);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            width: 90%;
+            max-width: 550px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 { color: var(--accent); margin-bottom: 10px; }
+        
+        .btn {
+            background: var(--accent);
+            color: #111;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+
+        .btn:hover { background: #e67e22; transform: translateY(-2px); }
+
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            border: 2px solid #444;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            text-align: center;
+            width: 80%;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent); }
+
+        /* Navigation Sections */
+        #login-section, #challenge-section, #morpion-section, #guess-section, #victory-section {
+            display: none;
+        }
+
+        /* Morpion Grid */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 260px;
+            margin: 25px auto;
+        }
+        .cell {
+            background: rgba(255,255,255,0.1);
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+        .cell:hover { background: rgba(255,255,255,0.2); }
+
+        /* Texte de remerciement */
+        .thanks-box {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(39, 174, 96, 0.15);
+            border-radius: 20px;
+            border: 1px solid var(--success);
+            line-height: 1.6;
+        }
+
+        .heart { color: #e74c3c; font-size: 1.2rem; }
+        
+        .credits {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            margin-top: 25px;
+            font-style: italic;
+        }
+
+        .special-thanks {
+            color: #fff;
+            background: rgba(243, 156, 18, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="login-section" style="display:block;">
+        <h1>🔒 Étape Finale</h1>
+        <p>Entrez le code trouvé dans la cache pour débloquer les ultimes épreuves.</p>
+        <input type="text" id="secret-code" placeholder="VOTRE CODE ICI">
+        <br>
+        <button class="btn" onclick="checkCode()">Vérifier l'accès</button>
+    </div>
+
+    <div class="container" id="challenge-section">
+        <h1>⚠️ Un dernier effort !</h1>
+        <p>Vous pensiez que c'était fini ? Bien au contraire...<br>Mxrp57 a une ultime surprise pour vous.</p>
+        <button class="btn" onclick="startMorpion()">Le Morpion Infernal</button>
+        <button class="btn" onclick="startGuess()">Le Chiffre Mystère</button>
+    </div>
+
+    <div class="container" id="morpion-section">
+        <h2>Morpion VS Bot</h2>
+        <p id="ttt-status">Battez-le pour gagner ! (Vous êtes ❌)</p>
+        <div class="board" id="ttt-board"></div>
+        <button class="btn" style="background:#555; color:white;" onclick="showMenu()">Retourner au menu</button>
+    </div>
+
+    <div class="container" id="guess-section">
+        <h2>Devine le Nombre</h2>
+        <p>Trouvez le nombre entre 0 et 50 choisi par Mxrp57.</p>
+        <p>Essais restants : <span id="tries-left" style="color:var(--accent); font-weight:bold; font-size:1.5rem;">5</span></p>
+        <input type="number" id="guess-input">
+        <br>
+        <button class="btn" onclick="checkGuess()">Tenter le coup</button>
+        <p id="guess-msg"></p>
+        <button class="btn" style="background:#555; color:white;" onclick="showMenu()">Retour</button>
+    </div>
+
+    <div class="container" id="victory-section">
+        <h1 style="font-size: 4rem; margin:0;">🏆</h1>
+        <h1 style="margin-top:0;">VICTOIRE TOTALE !</h1>
+        
+        <div class="thanks-box">
+            <p>Félicitations aventurier ! Tu as surmonté chaque étape, chaque calcul et chaque défi de la cache de <strong>Bassecourt</strong>.</p>
+            <p>Merci infiniment d'avoir joué le jeu et d'avoir exploré notre ville avec enthousiasme !</p>
+            
+            <div class="special-thanks">
+                ✨ Remerciements à : <strong>Adrien_11_20</strong> ✨<br>
+                Pour son aide précieuse et ses conseils.
+            </div>
+        </div>
+
+        <div class="credits">
+            Conçu par <strong>Mxrp57</strong> | 2026<br>
+            Merci de votre visite ! <span class="heart">❤</span>
+        </div>
+    </div>
+
+    <script>
+        function hideAll() {
+            ['login-section', 'challenge-section', 'morpion-section', 'guess-section', 'victory-section'].forEach(id => {
+                document.getElementById(id).style.display = 'none';
+            });
+        }
+
+        function checkCode() {
+            // Nouveau code : Mxrp57lebest
+            if(document.getElementById('secret-code').value === 'Mxrp57lebest') showMenu();
+            else alert("Code incorrect ! Cherchez encore...");
+        }
+
+        function showMenu() { hideAll(); document.getElementById('challenge-section').style.display = 'block'; }
+
+        // --- MORPION IA ACCESSIBLE ---
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let active = false;
+
+        function startMorpion() {
+            hideAll();
+            document.getElementById('morpion-section').style.display = 'block';
+            board.fill('');
+            active = true;
+            document.getElementById('ttt-status').innerText = "À vous de jouer ! (❌)";
+            draw();
+        }
+
+        function draw() {
+            const b = document.getElementById('ttt-board');
+            b.innerHTML = '';
+            board.forEach((c, i) => {
+                const d = document.createElement('div');
+                d.className = 'cell';
+                d.innerText = c;
+                d.onclick = () => { if(!c && active) play(i); };
+                b.appendChild(d);
+            });
+        }
+
+        function play(i) {
+            board[i] = '❌';
+            draw();
+            if(checkWin('❌')) return end("Gagné ! Bravo !");
+            if(!board.includes('')) return end("Match nul ! On recommence.");
+            active = false;
+            setTimeout(bot, 600);
+        }
+
+        function bot() {
+            let move;
+            // IA imparfaite (70% de chance de jouer n'importe où)
+            if (Math.random() > 0.3) {
+                let empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+                move = empty[Math.floor(Math.random() * empty.length)];
+            } else {
+                move = findBest('⭕') || findBest('❌');
+            }
+            if (move === undefined) {
+                let empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+                move = empty[Math.floor(Math.random() * empty.length)];
+            }
+            board[move] = '⭕';
+            draw();
+            if(checkWin('⭕')) return end("L'IA a gagné... Réessayez !");
+            active = true;
+        }
+
+        function findBest(p) {
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for(let l of lines) {
+                let s = l.map(i => board[i]);
+                if(s.filter(x => x === p).length === 2 && s.filter(x => x === '').length === 1) return l[s.indexOf('')];
+            }
+        }
+
+        function checkWin(p) {
+            return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(l => l.every(i => board[i] === p));
+        }
+
+        function end(m) {
+            document.getElementById('ttt-status').innerText = m;
+            active = false;
+            if(m === "Gagné ! Bravo !") {
+                setTimeout(() => { hideAll(); document.getElementById('victory-section').style.display = 'block'; }, 1200);
+            } else {
+                setTimeout(startMorpion, 2000);
+            }
+        }
+
+        // --- DEVINE NOMBRE ---
+        let target, tries;
+        function startGuess() {
+            hideAll();
+            document.getElementById('guess-section').style.display = 'block';
+            target = Math.floor(Math.random() * 51);
+            tries = 5;
+            document.getElementById('tries-left').innerText = tries;
+            document.getElementById('guess-msg').innerText = "";
+        }
+
+        function checkGuess() {
+            let g = parseInt(document.getElementById('guess-input').value);
+            if(isNaN(g)) return;
+            tries--;
+            document.getElementById('tries-left').innerText = tries;
+            if(g === target) { 
+                hideAll(); 
+                document.getElementById('victory-section').style.display = 'block'; 
+            } else if(tries <= 0) { 
+                alert("Dommage ! Le chiffre était " + target); 
+                startGuess(); 
+            } else {
+                document.getElementById('guess-msg').innerText = g < target ? "Plus grand ! ⬆️" : "Plus petit ! ⬇️";
+            }
+            document.getElementById('guess-input').value = "";
+        }
+    </script>
+</body>
+</html></html></html></html></html>
