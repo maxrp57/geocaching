@@ -18,25 +18,26 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            /* Fond thématique : Carte topographique / Nature */
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                         url('https://images.unsplash.com/photo-1504150559439-052593442405?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            padding: 20px;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.95);
-            width: 90%;
-            max-width: 450px;
+            width: 100%;
+            max-width: 500px;
             padding: 30px;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            text-align: center;
             backdrop-filter: blur(5px);
             border: 2px solid rgba(255,255,255,0.2);
         }
+
+        .header { text-align: center; }
 
         .badge {
             background: var(--primary);
@@ -45,98 +46,146 @@
             border-radius: 20px;
             font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        h1 {
-            color: var(--primary);
-            margin: 15px 0 5px 0;
-            font-size: 1.8rem;
-        }
+        h1 { color: var(--primary); margin: 15px 0 5px 0; }
 
-        .creator {
-            color: #555;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .steps-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        /* Couleurs issues de la page 2 du document */
-        .color-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-        }
-
-        .download-box {
+        .poste-item {
             background: #fdfdfd;
-            border: 2px dashed #ddd;
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .btn {
-            display: inline-block;
+        .coords { font-size: 0.85rem; color: #666; font-family: monospace; }
+
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 0.9rem; }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .btn-calc {
+            width: 100%;
             background: var(--accent);
             color: white;
-            padding: 15px 35px;
-            text-decoration: none;
+            padding: 15px;
+            border: none;
             border-radius: 10px;
             font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
         }
 
-        .btn:hover {
-            background: #219150;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+        .btn-calc:hover { background: #219150; }
+
+        #result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f5e9;
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            text-align: center;
         }
 
         .warning-text {
             font-size: 0.85rem;
             color: #666;
-            line-height: 1.5;
+            margin-top: 20px;
             border-top: 1px solid #eee;
             padding-top: 15px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <span class="badge">Geocaching</span>
-        <h1>Cache à Bassecourt</h1>
-        <div class="creator">Créée par Mxrp57</div>
-
-        <p>Prêt à relever le défi au centre-ville ? [cite: 1]</p>
-
-        <div class="steps-container">
-            <div class="color-dot" style="background: yellow;" title="Étape 3"></div>
-            <div class="color-dot" style="background: lime;" title="Étape 1"></div>
-            <div class="color-dot" style="background: red;" title="Étape 4"></div>
-            <div class="color-dot" style="background: blue;" title="Étape 2"></div>
-            <div class="color-dot" style="background: magenta;" title="Final"></div>
+        <div class="header">
+            <span class="badge">Geocaching</span>
+            <h1>Cache à Bassecourt</h1>
+            <p>Créée par Mxrp57</p>
         </div>
 
-        <div class="download-box">
-            <a href="fiche_cache_bassecourt.pdf" download class="btn">
-                💾 Télécharger la Fiche de Route
-            </a>
-            <p style="font-size: 0.8rem; margin-top: 10px; color: #888;">Format PDF - Indispensable pour l'aventure</p>
+        <div id="quest-form">
+            <div class="poste-item">
+                <strong>Poste 1: Petit-pont</strong> [cite: 5]<br>
+                <span class="coords">N 47° 20.313 E 7° 14.738</span> [cite: 6]
+                <label>Combien de tonnes max ? [cite: 7]</label>
+                <input type="number" id="step1" placeholder="Ex: 5">
+            </div>
+
+            <div class="poste-item">
+                <strong>Poste 2: Le Triangle</strong> [cite: 10]<br>
+                <span class="coords">N 47° 20.425 E 7° 14.775'</span> [cite: 11]
+                <label>Nombre de panneaux au centre ? [cite: 12]</label>
+                <input type="number" id="step2" placeholder="Réponse">
+            </div>
+
+            <div class="poste-item">
+                <strong>Poste 3: Les Bus</strong> [cite: 13]<br>
+                <span class="coords">N 47° 20.495 E 7° 14.567'</span> [cite: 14]
+                <label>Numéro du bus Bassecourt-Soulce ? [cite: 15]</label>
+                <input type="number" id="step3" placeholder="Réponse">
+            </div>
+
+            <div class="poste-item">
+                <strong>Poste 4: Le Tabeillon</strong> [cite: 16]<br>
+                <span class="coords">N 47° 20.450 E 7° 14.215′</span> [cite: 17]
+                <label>Code inscrit dans la boîte ? [cite: 18]</label>
+                <input type="number" id="step4" placeholder="Réponse">
+            </div>
+
+            <button class="btn-calc" onclick="calculerFinal()">Calculer les coordonnées finales</button>
+        </div>
+
+        <div id="result">
+            <h3>📍 Coordonnées Finales</h3>
+            <p id="final-coords" style="font-size: 1.2rem; font-weight: bold; color: var(--primary);"></p>
         </div>
 
         <div class="warning-text">
-            <strong>Note de Mxrp57 :</strong> Cette feuille va bien vous servir, je vous déconseille de ne pas y prêter attention ! 
+            <strong>Note :</strong> Cette interface remplace la fiche papier. Répondez à tout pour trouver la cache ! [cite: 3]
         </div>
     </div>
 
+    <script>
+        function calculerFinal() {
+            // Récupération des valeurs
+            const s1 = parseFloat(document.getElementById('step1').value);
+            const s2 = parseFloat(document.getElementById('step2').value);
+            const s3 = parseFloat(document.getElementById('step3').value);
+            const s4 = parseFloat(document.getElementById('step4').value);
+
+            if (isNaN(s1) || isNaN(s2) || isNaN(s3) || isNaN(s4)) {
+                alert("Veuillez remplir toutes les étapes !");
+                return;
+            }
+
+            // Calculs selon les formules du document 
+            const A = s3 - (3 + 2);
+            const B = s1 - 8;
+            const C = s4 + 3;
+            const D = s2 + 3;
+            const E = s4 + 208;
+
+            // Affichage du résultat selon le format N(A)(B).(C)' E 14.(E) [cite: 20, 21]
+            // Note: Le format exact du PDF est un peu particulier, voici l'interprétation :
+            const coordTexte = `N ${A}${B}.${C}' E 7° ${D}.${E}`; 
+            
+            document.getElementById('final-coords').innerText = coordTexte;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
-</html></html></html>
+</html>
