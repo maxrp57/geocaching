@@ -2,23 +2,20 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Fiche Cache Bassecourt - GPS Interactif</title>
+    <title>Fiche Cache Bassecourt - Mission Finale</title>
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; background: #2b2b2b; display: flex; justify-content: center; font-family: 'Roboto', sans-serif; }
         .page { width: 794px; background: white; margin: 40px 0; padding: 40px 60px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
         h1 { font-family: 'Patrick Hand', cursive; text-align: center; font-size: 28px; color: #222; margin-bottom: 30px; }
         
-        .section { margin-top: 25px; border-left: 4px solid #444; padding-left: 15px; position: relative; }
+        .section { margin-top: 25px; border-left: 4px solid #444; padding-left: 15px; }
         .section-title { font-weight: bold; font-size: 18px; margin-bottom: 5px; display: block; }
         
         .maps-link { font-size: 14px; color: #1a73e8; text-decoration: none; font-weight: bold; }
-        .maps-link:hover { text-decoration: underline; }
-
         .answer-container { border-bottom: 1px dotted #000; width: 150px; display: inline-block; margin-top: 5px; }
         input { border: none; background: transparent; width: 100%; font-family: 'Patrick Hand', cursive; font-size: 18px; outline: none; color: #0000ff; }
 
-        /* Style Jeu F1 */
         #f1-game { background: #111; padding: 20px; border-radius: 15px; text-align: center; color: white; margin-top: 30px; border: 2px solid #333; position: relative; }
         .info-btn { position: absolute; top: 10px; right: 15px; background: #444; color: white; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; border: none; font-weight: bold; }
         .lights { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
@@ -26,12 +23,13 @@
         .light.red { background: #ff0000; box-shadow: 0 0 20px #ff0000; }
         .btn-game { padding: 12px 30px; font-size: 18px; cursor: pointer; background: #e10600; color: white; border: none; border-radius: 5px; font-weight: bold; text-transform: uppercase; }
         
-        /* Calculs */
         .calc-box { margin-top: 25px; padding: 25px; background: #fdfdfd; border: 2px solid #eee; border-radius: 10px; }
-        .calc-line { font-size: 19px; margin: 12px 0; color: #777; }
-        .calc-line.unlocked { color: #d00000; font-weight: bold; }
+        .formula-main { font-size: 22px; font-weight: bold; color: #d00000; text-align: center; margin-bottom: 20px; letter-spacing: 1px; }
+        .calc-line { font-size: 19px; margin: 12px 0; color: #777; transition: all 0.3s; }
+        .calc-line.unlocked { color: #000; font-weight: bold; }
+        .res-val { color: #d00000; margin-left: 10px; }
 
-        .final-display { margin-top: 30px; padding: 20px; border: 3px solid #d00000; background: #fff4f4; text-align: center; color: #d00000; display: none; }
+        .final-display { margin-top: 30px; padding: 20px; border: 3px solid #d00000; background: #fff4f4; text-align: center; display: none; }
         .warning-text { font-size: 13px; color: #666; font-style: italic; margin-top: 15px; border-top: 1px solid #ffcccc; padding-top: 10px; }
         
         #info-text { display: none; background: #222; padding: 10px; border-radius: 5px; font-size: 13px; margin-top: 10px; color: #ccc; text-align: left; }
@@ -44,37 +42,37 @@
 
     <div class="section">
         <span class="section-title">Poste 1 : Petit-pont</span>
-        <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=47.33855,7.24563" target="_blank">📍 Voir sur Google Maps (N 47° 20.313′ E 7° 14.738′)</a>
+        <a class="maps-link" href="https://www.google.com/maps?q=47.33855,7.245633" target="_blank">📍 N 47° 20.313′ E 7° 14.738′</a>
         <p><b>Question :</b> Combien de tonnes maximum peut tenir ce pont ? (PS: Un panneau indique...)</p>
         <span class="answer-container"><input type="number" id="r1" oninput="updateCalculations()" placeholder="Réponse"></span>
     </div>
 
     <div class="section">
         <span class="section-title">Poste 2 : Le Triangle</span>
-        <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=47.34042,7.24625" target="_blank">📍 Voir sur Google Maps (N 47° 20.425′ E 7° 14.775′)</a>
+        <a class="maps-link" href="https://www.google.com/maps?q=47.340417,7.24625" target="_blank">📍 N 47° 20.425′ E 7° 14.775′</a>
         <p><b>Question :</b> Combien y a-t-il de panneaux au centre du rond-point ?</p>
         <span class="answer-container"><input type="number" id="r2" oninput="updateCalculations()" placeholder="Réponse"></span>
     </div>
 
     <div class="section">
         <span class="section-title">Poste 3 : Les Bus</span>
-        <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=47.34158,7.24278" target="_blank">📍 Voir sur Google Maps (N 47° 20.495′ E 7° 14.567′)</a>
+        <a class="maps-link" href="https://www.google.com/maps?q=47.341583,7.242783" target="_blank">📍 N 47° 20.495′ E 7° 14.567′</a>
         <p><b>Question :</b> Quel est le numéro du bus qui fait Bassecourt-Soulce ?</p>
         <span class="answer-container"><input type="number" id="r3" oninput="updateCalculations()" placeholder="Réponse"></span>
     </div>
 
     <div class="section">
         <span class="section-title">Poste 4 : Le Tabeillon</span>
-        <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query=47.34083,7.23692" target="_blank">📍 Voir sur Google Maps (N 47° 20.450′ E 7° 14.215′)</a>
+        <a class="maps-link" href="https://www.google.com/maps?q=47.340833,7.236917" target="_blank">📍 N 47° 20.450′ E 7° 14.215′</a>
         <p><b>Question :</b> Chercher une cache et noter le code inscrit dans la boîte.</p>
         <span class="answer-container"><input type="number" id="r4" oninput="updateCalculations()" placeholder="Réponse"></span>
     </div>
 
     <div id="f1-game">
         <button class="info-btn" onclick="toggleInfo()">i</button>
-        <h3 id="next-step-label" style="color:#e10600; margin-top:0;">DÉBLOQUER : CALCUL A (0.400s)</h3>
+        <h3 id="next-step-label" style="color:#e10600; margin-top:0;">DÉBLOQUER : A (0.400s)</h3>
         <div id="info-text">
-            Réussissez le test pour afficher les résultats. Les coordonnées finales dépendent de vos réponses aux postes ci-dessus. Rappel : la cache reste à Bassecourt !
+            Ce jeu automatise l'affichage des résultats pour chaque ligne. Si vous préférez, vous pouvez calculer de tête avec les formules affichées en bas.
         </div>
         <div class="lights">
             <div class="light" id="l1"></div><div class="light" id="l2"></div><div class="light" id="l3"></div><div class="light" id="l4"></div><div class="light" id="l5"></div>
@@ -84,20 +82,19 @@
     </div>
 
     <div class="calc-box">
-        <div id="row-A" class="calc-line">A = (étape 3) - (3 + 2)</div>
-        <div id="row-B" class="calc-line">B = (étape 1) - 8</div>
-        <div id="row-C" class="calc-line">C = (étape 4) + 3</div>
-        <div id="row-D" class="calc-line">D = (étape 2) + 3</div>
-        <div id="row-E" class="calc-line">E = (étape 4) + 208</div>
+        <div class="formula-main">N(A)°(B).(C)′ E (D)° 14.(E)′</div>
+        
+        <div id="row-A" class="calc-line">A = (etape 3) - (3+2) <span id="res-A" class="res-val"></span></div>
+        <div id="row-B" class="calc-line">B = (étape 1) - 8 <span id="res-B" class="res-val"></span></div>
+        <div id="row-C" class="calc-line">C = (étape 4) + 3 <span id="res-C" class="res-val"></span></div>
+        <div id="row-D" class="calc-line">D = (etape 2) + 3 <span id="res-D" class="res-val"></span></div>
+        <div id="row-E" class="calc-line">E = (etape 4) + 208 <span id="res-E" class="res-val"></span></div>
         
         <div id="final-coords-box" class="final-display">
-            <div style="font-size: 16px; font-weight: bold;">COORDONNÉES FINALES</div>
-            <div style="font-size: 26px; font-weight: bold; margin: 10px 0;">
-                N <span id="res-A">--</span>° <span id="res-B">--</span> . <span id="res-C">--</span>′<br>
-                E <span id="res-D">--</span>° 14 . <span id="res-E">--</span>′
-            </div>
+            <div style="font-size: 18px; font-weight: bold; color: #d00000;">COORDONNÉES FINALES</div>
+            <div id="final-txt" style="font-size: 26px; font-weight: bold; margin: 10px 0; color: #d00000;"></div>
             <div class="warning-text">
-                ⚠️ Vérifiez bien vos calculs. La cache se trouve obligatoirement dans le village.
+                ⚠️ Attention : Ces coordonnées sont basées sur vos calculs. Si les chiffres sont faux, le résultat le sera aussi. La cache finale reste dans le village de Bassecourt.
             </div>
         </div>
     </div>
@@ -138,15 +135,15 @@
             state = "IDLE";
             if (diff <= 0.400) {
                 unlockedLevel++;
-                document.getElementById('game-status').innerText = `BIEN JOUÉ ! (${diff}s)`;
+                document.getElementById('game-status').innerText = `RÉUSSI ! (${diff}s)`;
                 updateCalculations();
-                if(unlockedLevel < 5) document.getElementById('next-step-label').innerText = `DÉBLOQUER : CALCUL ${letters[unlockedLevel]}`;
+                if(unlockedLevel < 5) document.getElementById('next-step-label').innerText = `DÉBLOQUER : ${letters[unlockedLevel]} (0.400s)`;
                 else {
-                    document.getElementById('next-step-label').innerText = "TERMINE !";
+                    document.getElementById('next-step-label').innerText = "DÉVERROUILLÉ";
                     document.getElementById('game-btn').disabled = true;
                 }
             } else {
-                document.getElementById('game-status').innerText = `TROP LENT (${diff}s). Réessaie !`;
+                document.getElementById('game-status').innerText = `TROP LENT (${diff}s)`;
             }
             document.getElementById('game-btn').innerText = "RECO";
         }
@@ -168,14 +165,15 @@
 
         letters.forEach((L, idx) => {
             if (idx < unlockedLevel) {
-                const row = document.getElementById(`row-${L}`);
-                row.classList.add('unlocked');
-                row.innerText = `${L} = ${results[L]}`;
-                document.getElementById(`res-${L}`).innerText = results[L];
+                document.getElementById(`row-${L}`).classList.add('unlocked');
+                document.getElementById(`res-${L}`).innerText = `→ ${results[L]}`;
             }
         });
 
-        if (unlockedLevel === 5) document.getElementById('final-coords-box').style.display = "block";
+        if (unlockedLevel === 5) {
+            document.getElementById('final-coords-box').style.display = "block";
+            document.getElementById('final-txt').innerText = `N ${results.A}° ${results.B}.${results.C}′ E ${results.D}° 14.${results.E}′`;
+        }
     }
 </script>
 </body>
